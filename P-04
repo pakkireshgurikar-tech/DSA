@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <ctype.h>
+
+void fnPush(char stack[], int *top, char elem);
+char fnPop(char stack[], int *top);
+int fnPrecd(char ch);
+
+int main()
+{
+    int i, j = 0;
+    char acExpr[50], acStack[50], acPost[50], cSymb;
+    int top = -1;
+
+    printf("\nEnter a valid infix expression:\n");
+    scanf("%s", acExpr);
+
+    fnPush(acStack, &top, '#');   // Sentinel symbol
+
+    for (i = 0; acExpr[i] != '\0'; i++)
+    {
+        cSymb = acExpr[i];
+
+        if (isalnum(cSymb))        // Operand
+        {
+            acPost[j++] = cSymb;
+        }
+        else if (cSymb == '(')
+        {
+            fnPush(acStack, &top, cSymb);
+        }
+        else if (cSymb == ')')
+        {
+            while (acStack[top] != '(')
+                acPost[j++] = fnPop(acStack, &top);
+
+            fnPop(acStack, &top);  // Remove '('
+        }
+        else                       // Operator
+        {
+            while (fnPrecd(acStack[top]) >= fnPrecd(cSymb))
+            {
+                if (cSymb == '^' && acStack[top] == '^')
+                    break;         // Right associative
+                acPost[j++] = fnPop(acStack, &top);
+            }
+            fnPush(acStack, &top, cSymb);
+        }
+    }
+
+    while (acStack[top] != '#')
+        acPost[j++] = fnPop(acStack, &top);
+
+    acPost[j] = '\0';
+
+    printf("\nInfix Expression  : %s", acExpr);
+    printf("\nPostfix Expression: %s\n", acPost);
+
+    return 0;
+}
+
+void fnPush(char stack[], int *top, char elem)
+{
+    (*top)++;
+    stack[*top] = elem;
+}
+
+char fnPop(char stack[], int *top)
+{
+    char elem = stack[*top];
+    (*top)--;
+    return elem;
+}
+
+int fnPrecd(char ch)
+{
+    switch (ch)
+    {
+        case '#': return -1;
+        case '(': return 0;
+        case '+':
+        case '-': return 1;
+        case '*':
+        case '/':
+        case '%': return 2;
+        case '^': return 3;
+    }
+    return -1;
+}

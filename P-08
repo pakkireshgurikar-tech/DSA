@@ -1,0 +1,170 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct node
+{
+    int usn;
+    char name[30],dept[4],design[30],ph[10];
+    int sal;
+    struct node*plink;
+    struct node*nlink;
+};
+typedef struct node*NODE;
+NODE getn(void);
+void freen(NODE);
+NODE insrear(NODE);
+NODE insfront(NODE);
+NODE delfront(NODE);
+NODE delrear(NODE);
+void disp(NODE);
+int main()
+{
+   NODE first=NULL;
+   int ch,num,i;
+   printf("Enter the number of employees N:");
+   scanf("%d",&num);
+   for(i=0;i<num;i++)
+   {
+       printf("\nEnter data for node %d:\n",i+1);
+       first=insrear(first);
+   }
+   while(1)
+   {
+       printf("\nDLL OPERATIONS");
+       printf("\n==============");
+       printf("\n1.Insert Front");
+       printf("\n2.Insert Rear");
+       printf("\n3.Delete Front");
+       printf("\n4.Delete Rear");
+       printf("\n5.Display");
+       printf("\n6.Exit");
+       printf("\nEnter your choice:");
+       scanf("%d",&ch);
+       switch(ch)
+       {
+           case 1:first=insfront(first);
+           break;
+           case 2:first=insrear(first);
+           break;
+           case 3:first=delfront(first);
+           break;
+           case 4:first=delrear(first);
+           break;
+           case 5:disp(first);
+           break;
+           case 6:exit(0);
+           default:printf("\nInvalid Choice");
+       }
+   }
+}
+NODE getn()
+{
+    NODE newborn=(NODE)malloc(sizeof(struct node));
+    if(newborn==NULL)
+    {
+        printf("\nMemory Overflow");
+        exit(0);
+    }
+    printf("Enter SSN:");
+    scanf("%d",&newborn->usn);
+    printf("Enter Name:");
+    scanf("%s",newborn->name);
+    printf("Enter Department:");
+    scanf("%s",newborn->dept);
+    printf("Enter Designation:");
+    scanf("%s",newborn->design);
+    printf("Enter Salary:");
+    scanf("%d",&newborn->sal);
+    printf("Enter Phone Number:");
+    scanf("%s",newborn->ph);
+    newborn->nlink=NULL;
+    newborn->plink=NULL;
+    return newborn;
+}
+void freen(NODE x)
+{
+    free(x);
+}
+NODE insrear(NODE first)
+{
+    NODE temp=getn(),cur;
+    if(first==NULL)
+        return temp;
+    cur=first;
+    while(cur->nlink!=NULL)
+        cur=cur->nlink;
+    cur->nlink=temp;
+    temp->plink=cur;
+    return first;
+}
+NODE insfront(NODE first)
+{
+    NODE temp=getn();
+    if(first!=NULL)
+        first->plink=temp;
+    temp->nlink=first;
+    temp->plink=NULL;
+    return temp;
+}
+NODE delfront(NODE first)
+{
+    NODE temp;
+    if(first==NULL)
+    {
+        printf("\nDLL is Empty");
+        return first;
+    }
+    if(first->nlink==NULL)
+    {
+        printf("\nNode deleted for %s",first->name);
+        freen(first);
+        return NULL;
+    }
+    temp=first;
+    first=first->nlink;
+    first->plink=NULL;
+    printf("\nNode deleted for %s",temp->name);
+    freen(temp);
+    return first;
+}
+NODE delrear(NODE first)
+{
+    NODE cur;
+    if(first=NULL)
+    {
+        printf("\nDLL is empty");
+        return first;
+    }
+    if(first->nlink=NULL)
+    {
+        printf("\nNode Deleted for %s",first->name);
+        freen(first);
+        return NULL;
+    }
+    cur=first;
+    while(cur->nlink!=NULL)
+        cur=cur->nlink;
+    cur->plink->nlink=NULL;
+    printf("\nNode deleted for %s",cur->name);
+    freen(cur);
+    return first;
+}
+void disp(NODE first)
+{
+    NODE cur;
+    int count=0;
+    if(first==NULL)
+    {
+        printf("\nDLL is empty");
+        return;
+    }
+    printf("\nSSN\tName\tDepartment\tDesignation\tSalary\tPhone Number");
+    cur=first;
+    while(cur!=NULL)
+    {
+        printf("\n%d\t%s\t%s\t%s\t%d\t%s",cur->usn,cur->name,cur->dept,cur->design,cur->sal,cur->ph);
+        cur=cur->nlink;
+        count++;
+    }
+    printf("\n\nDLL has %d nodes\n",count);
+}

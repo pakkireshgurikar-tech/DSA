@@ -1,0 +1,85 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+#define NUM 7
+typedef struct
+{
+    char*dayName;
+    int date;
+    char*activity;
+}day;
+day*createCalendar();
+void readCalendar(day*cal);
+void displayCalendar(day*cal);
+void freeCalendar(day*cal);
+int main()
+{
+    day*weeklyCalendar=createCalendar();
+    readCalendar(weeklyCalendar);
+    displayCalendar(weeklyCalendar);
+    freeCalendar(weeklyCalendar);
+    return 0;
+}
+day*createCalendar()
+{
+    day*cal=(day*)malloc(NUM*sizeof(day));
+    for(int i=0;i<NUM;i++)
+    {
+        cal[i].dayName=NULL;
+        cal[i].date=0;
+        cal[i].activity=NULL;
+    }
+    return cal;
+}
+void readCalendar(day*cal)
+{
+    char choice;
+    char day[50],act[100];
+    for(int i=0;i<NUM;i++)
+    {
+        printf("do you want to enter the details for day %d[y/n]:",i+1);
+        scanf("%c",&choice);
+        getchar();
+        if(choice=='n')
+        {
+            continue;
+        }
+        printf("\nDay Name:");
+        scanf("%s",day);
+        cal[i].dayName=(char*)malloc(strlen(day)+1);
+        strcpy(cal[i].dayName,day);
+        printf("Date:");
+        scanf("%d",&cal[i].date);
+        printf("Activity:");
+        scanf("%s",act);
+        cal[i].activity=(char*)malloc(strlen(act)+1);
+        strcpy(cal[i].activity,act);
+        printf("\n");
+        getchar();
+    }
+}
+void displayCalendar(day*cal)
+{
+    printf("\nWEEK ACTIVITY DETAILS:\n");
+    for(int i=0;i<NUM;i++)
+    {
+        printf("Day %d:\n",i+1);
+        if(cal[i].date==0)
+        {
+            printf("\nNo Axtivity\n");
+        }
+        printf("Day Name:%s\n",cal[i].dayName);
+        printf("Date:%d\n",cal[i].date);
+        printf("Activity:%s\n",cal[i].activity);
+    }
+}
+void freeCalendar(day*cal)
+{
+    for(int i=0;i<NUM;i++)
+    {
+        free(cal[i].dayName);
+        free(cal[i].activity);
+    }
+    free(cal);
+}

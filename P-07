@@ -1,0 +1,157 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct node
+{
+    char usn[10],name[40],prog[4];
+    int sem;
+    char ph[10];
+    struct node*link;
+};
+
+typedef struct node*PTR;
+PTR getNode(void);
+PTR insFront(PTR first);
+PTR insRear(PTR first);
+PTR delFront(PTR first);
+PTR delRear(PTR first);
+void display(PTR first);
+
+int main()
+{
+    PTR first=NULL;
+    int ch,n,i;
+    printf("\nEnter the number of students:");
+    scanf("%d",&n);
+    for(i=0;i<n;i++)
+    {
+        printf("\nEnter details of student %d:\n",i+1);
+        first=insFront(first);
+    }
+    while(1)
+    {
+        printf("\n\nQUEUE OPERATIONS");
+        printf("------------------");
+        printf("\n1.Insert Front");
+        printf("\n2.Insert Rear");
+        printf("\n3.Delete Front");
+        printf("\n4.Delete Rear");
+        printf("\n5.Display");
+        printf("\n6.Exit");
+        printf("\nEnter your choice:");
+        scanf("%d",&ch);
+        switch(ch)
+        {
+            case 1:first=insFront(first);
+            break;
+            case 2:first=insRear(first);
+            break;
+            case 3:first=delFront(first);
+            break;
+            case 4:first=delRear(first);
+            break;
+            case 5:display(first);
+            break;
+            case 6:exit(0);
+            default:printf("\nInvalid choice");
+        }
+    }
+}
+PTR getNode()
+{
+    PTR temp=(PTR)malloc(sizeof(struct node));
+    if(temp==NULL)
+    {
+        printf("\nMemory Overflow");
+        exit(0);
+    }
+    printf("USN:");
+    scanf("%s",temp->usn);
+    printf("Name:");
+    scanf("%s",temp->name);
+    printf("Program:");
+    scanf("%s",temp->prog);
+    printf("Semester:");
+    scanf("%d",&temp->sem);
+    printf("Phone Number:");
+    scanf("%s",temp->ph);
+    temp->link=NULL;
+    return temp;
+}
+PTR insFront(PTR first)
+{
+    PTR temp=getNode();
+    temp->link=first;
+    return temp;
+}
+PTR insRear(PTR first)
+{
+    PTR temp=getNode(),cur;
+    if(first==NULL)
+        return temp;
+    cur=first;
+    while(cur->link!=NULL)
+        cur=cur->link;
+    cur->link=temp;
+    return first;
+}
+PTR delFront(PTR first)
+{
+    PTR temp;
+    if(first==NULL)
+    {
+        printf("\nList is Empty");
+        return first;
+    }
+    temp=first;
+    first=first->link;
+    printf("\nDeleted Student:%s",temp->name);
+    free(temp);
+    return first;
+}
+PTR delRear(PTR first)
+{
+    PTR cur,prev;
+    if(first==NULL)
+    {
+        printf("\nList is Empty");
+        return first;
+    }
+    if(first->link==NULL)
+    {
+        printf("\nDeleted Student:%s",first->name);
+        free(first);
+        return NULL;
+    }
+    prev=NULL;
+    cur=first;
+    while(cur->link!=NULL)
+    {
+        prev=cur;
+        cur=cur->link;
+    }
+    prev->link=NULL;
+    printf("\nDeleted Student:%s",cur->name);
+    free(cur);
+    return first;
+}
+void display(PTR first)
+{
+    PTR cur;
+    int count=0;
+    if(first==NULL)
+    {
+        printf("\nList id empty");
+        return;
+    }
+    printf("\nUSN\tName\t\tProgram\tSem\tPhone Number");
+    cur=first;
+    while(cur!=NULL)
+    {
+        printf("\n%s\t%s\t\t%s\t%d\t%s",cur->usn,cur->name,cur->prog,cur->sem,cur->ph);
+        cur=cur->link;
+        count++;
+    }
+    printf("\nTotal Students=%d\n",count);
+}

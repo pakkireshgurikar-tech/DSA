@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_HASH_TABLE_SIZE 50
+typedef struct
+{
+    int iKey;
+    char cName[50];
+} EMPLOYEE;
+EMPLOYEE *stHashTable[MAX_HASH_TABLE_SIZE];
+int fnCompHash(int key, int m);
+void fnInsRecord(EMPLOYEE *emp, int m);
+EMPLOYEE* fnSrchRecord(int key, int m);
+int main()
+{
+    int m;
+    printf("Enter the size of the hash table (m): ");
+    scanf("%d", &m);
+    for (int i = 0; i < m; i++)
+        stHashTable[i] = NULL;
+    FILE *file = fopen("employee.txt", "r");
+    if (file == NULL)
+    {
+        printf("\nERROR: employee.txt file not found!\n");
+        return 0;
+    }
+    int key;
+    char name[50];
+    while (fscanf(file, "%d %s", &key, name) != EOF)
+    {
+        EMPLOYEE *newEmp = (EMPLOYEE *)malloc(sizeof(EMPLOYEE));
+        newEmp->iKey = key;
+        strcpy(newEmp->cName, name);
+
+        fnInsRecord(newEmp, m);
+    }
+    fclose(file);
+    int iSrchKey;
+    printf("Enter a key to search for an employee record: ");
+    scanf("%d", &iSrchKey);
+    EMPLOYEE *found = fnSrchRecord(iSrchKey, m);
+    if (found != NULL)
+    {
+        printf("Employee found with key %d:\n", found->iKey);
+        printf("Name: %s\n", found->cName);
+    }
+    else
+    {
+        printf("Employee with key %d not found.\n", iSrchKey);
+    }
+    return 0;
+}
+int fnCompHash(int key, int m)
+{
+    return key % m;
+}
+void fnInsRecord(EMPLOYEE *emp, int m)
+{
+    int index = fnCompHash(emp->iKey, m);
+    int start = index;
+    while (stHashTable[index] != NULL)
+    {
+        index = (index + 1) % m;
+        if (index == start)
+        {
+            printf("Hash Table FULL! Cannot insert key %d\n", emp->iKey);
+            free(emp);
+            return;
+        }
+    }
+    stHashTable[index] = emp;
+}
+EMPLOYEE* fnSrchRecord(int key, int m)
+{
+    int index = fnCompHash(key, m);
+    int start = index;
+    while (stHashTable[index] != NULL)
+    {
+        if (stHashTable[index]->iKey == key)
+            return stHashTable[index];
+        index = (index + 1) % m;
+        if (index == start)
+            break;
+    }
+    return NULL;
+}

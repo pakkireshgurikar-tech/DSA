@@ -1,86 +1,88 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_HASH_TABLE_SIZE 50
+
+#define MAX 50
+
 typedef struct
 {
-    int iKey;
-    char cName[50];
-} EMPLOYEE;
-EMPLOYEE *stHashTable[MAX_HASH_TABLE_SIZE];
-int fnCompHash(int key, int m);
-void fnInsRecord(EMPLOYEE *emp, int m);
-EMPLOYEE* fnSrchRecord(int key, int m);
-int main()
-{
-    int m;
-    printf("Enter the size of the hash table (m): ");
-    scanf("%d", &m);
-    for (int i = 0; i < m; i++)
-        stHashTable[i] = NULL;
-    FILE *file = fopen("employee.txt", "r");
-    if (file == NULL)
-    {
-        printf("\nERROR: employee.txt file not found!\n");
-        return 0;
-    }
     int key;
     char name[50];
-    while (fscanf(file, "%d %s", &key, name) != EOF)
-    {
-        EMPLOYEE *newEmp = (EMPLOYEE *)malloc(sizeof(EMPLOYEE));
-        newEmp->iKey = key;
-        strcpy(newEmp->cName, name);
+} EMP;
 
-        fnInsRecord(newEmp, m);
-    }
-    fclose(file);
-    int iSrchKey;
-    printf("Enter a key to search for an employee record: ");
-    scanf("%d", &iSrchKey);
-    EMPLOYEE *found = fnSrchRecord(iSrchKey, m);
-    if (found != NULL)
+EMP *HT[MAX];   // Hash Table
+
+int hash(int key, int m);
+void insert(EMP *e, int m);
+EMP* search(int key, int m);
+
+int main()
+{
+    int m, i, key;
+    char name[50];
+
+    printf("Enter hash table size (m): ");
+    scanf("%d", &m);
+    for(i = 0; i < m; i++)
+        HT[i] = NULL;
+
+    FILE *fp = fopen("employee.txt", "r");
+    if(fp == NULL)
     {
-        printf("Employee found with key %d:\n", found->iKey);
-        printf("Name: %s\n", found->cName);
+        printf("File not found!\n");
+        return 0;
     }
+
+    while(fscanf(fp, "%d %s", &key, name) != EOF)
+    {
+        EMP *e = (EMP*)malloc(sizeof(EMP));
+        e->key = key;
+        strcpy(e->name, name);
+
+        insert(e, m);
+    }
+
+    fclose(fp);
+    printf("Enter key to search: ");
+    scanf("%d", &key);
+
+    EMP *found = search(key, m);
+
+    if(found != NULL)
+        printf("Found: %d  %s\n", found->key, found->name);
     else
-    {
-        printf("Employee with key %d not found.\n", iSrchKey);
-    }
+        printf("Record not found!\n");
+
     return 0;
 }
-int fnCompHash(int key, int m)
+int hash(int key, int m)
 {
     return key % m;
 }
-void fnInsRecord(EMPLOYEE *emp, int m)
+void insert(EMP *e, int m)
 {
-    int index = fnCompHash(emp->iKey, m);
-    int start = index;
-    while (stHashTable[index] != NULL)
-    {
-        index = (index + 1) % m;
-        if (index == start)
-        {
-            printf("Hash Table FULL! Cannot insert key %d\n", emp->iKey);
-            free(emp);
-            return;
-        }
-    }
-    stHashTable[index] = emp;
+    int i = hash(e->key, m);
+
+    while(HT[i] != NULL)
+        i = (i + 1) % m;
+
+    HT[i] = e;
 }
-EMPLOYEE* fnSrchRecord(int key, int m)
+EMP* search(int key, int m)
 {
-    int index = fnCompHash(key, m);
-    int start = index;
-    while (stHashTable[index] != NULL)
+    int i = hash(key, m);
+    int start = i;
+
+    while(HT[i] != NULL)
     {
-        if (stHashTable[index]->iKey == key)
-            return stHashTable[index];
-        index = (index + 1) % m;
-        if (index == start)
+        if(HT[i]->key == key)
+            return HT[i];
+
+        i = (i + 1) % m;
+
+        if(i == start)  // full loop completed
             break;
     }
     return NULL;
 }
+

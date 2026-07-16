@@ -1,88 +1,122 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdbool.h>
 
-#define MAX 50
 
-typedef struct
+void printSolution(int **board, int N)
 {
-    int key;
-    char name[50];
-} EMP;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            printf("%s ", board[i][j] ? "Q" : "#");
+        }
+        printf("\n");
+    }
+}
 
-EMP *HT[MAX];   // Hash Table
 
-int hash(int key, int m);
-void insert(EMP *e, int m);
-EMP* search(int key, int m);
+bool isSafe(int **board, int N, int row, int col)
+{
+    int i, j;
+
+ 
+    for (i = 0; i < col; i++)
+    {
+        if (board[row][i])
+        {
+            return false;
+        }
+    }
+
+    for (i = row, j = col; i >= 0 && j >= 0; i--, j--)
+    {
+        if (board[i][j])
+        {
+            return false;
+        }
+    }
+
+
+    for (i = row, j = col; j >= 0 && i < N; i++, j--)
+    {
+        if (board[i][j])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool solveNQUtil(int **board, int N, int col)
+{
+   
+    if (col >= N)
+    {
+        return true;
+    }
+
+    
+    for (int i = 0; i < N; i++)
+    {
+        if (isSafe(board, N, i, col))
+        {
+      
+            board[i][col] = 1;
+
+            if (solveNQUtil(board, N, col + 1))
+            {
+                return true;
+            }
+
+         
+            board[i][col] = 0; 
+        }
+    }
+
+    return false;
+}
+
+bool solveNQ(int N)
+{
+    int **board = (int **)malloc(N * sizeof(int *));
+    for (int i = 0; i < N; i++)
+    {
+        board[i] = (int *)malloc(N * sizeof(int));
+        for (int j = 0; j < N; j++)
+        {
+            board[i][j] = 0;
+        }
+    }
+
+    if (!solveNQUtil(board, N, 0))
+    {
+        printf("Solution does not exist\n");
+        for (int i = 0; i < N; i++)
+        {
+            free(board[i]);
+        }
+        free(board);
+        return false;
+    }
+
+    printSolution(board, N);
+
+    for (int i = 0; i < N; i++)
+    {
+        free(board[i]);
+    }
+    free(board);
+    return true;
+}
 
 int main()
 {
-    int m, i, key;
-    char name[50];
-
-    printf("Enter hash table size (m): ");
-    scanf("%d", &m);
-    for(i = 0; i < m; i++)
-        HT[i] = NULL;
-
-    FILE *fp = fopen("employee.txt", "r");
-    if(fp == NULL)
-    {
-        printf("File not found!\n");
-        return 0;
-    }
-
-    while(fscanf(fp, "%d %s", &key, name) != EOF)
-    {
-        EMP *e = (EMP*)malloc(sizeof(EMP));
-        e->key = key;
-        strcpy(e->name, name);
-
-        insert(e, m);
-    }
-
-    fclose(fp);
-    printf("Enter key to search: ");
-    scanf("%d", &key);
-
-    EMP *found = search(key, m);
-
-    if(found != NULL)
-        printf("Found: %d  %s\n", found->key, found->name);
-    else
-        printf("Record not found!\n");
-
+    int N;
+    printf("Enter the number of queens: ");
+    scanf("%d", &N);
+    solveNQ(N);
     return 0;
 }
-int hash(int key, int m)
-{
-    return key % m;
-}
-void insert(EMP *e, int m)
-{
-    int i = hash(e->key, m);
-
-    while(HT[i] != NULL)
-        i = (i + 1) % m;
-
-    HT[i] = e;
-}
-EMP* search(int key, int m)
-{
-    int i = hash(key, m);
-    int start = i;
-
-    while(HT[i] != NULL)
-    {
-        if(HT[i]->key == key)
-            return HT[i];
-
-        i = (i + 1) % m;
-
-        if(i == start)  // full loop completed
-            break;
-    }
-    return NULL;
-}
-

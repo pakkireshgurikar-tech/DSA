@@ -1,105 +1,88 @@
-#include<stdio.h>
-#include<stdlib.h>
-struct node
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to swap two elements
+void swap(int* a, int* b)
 {
-    int data;
-    struct node*left,*right;
-};
-typedef struct node*NODE;
-NODE createNode(int item)
-{
-    NODE temp=(NODE)malloc(sizeof(struct node));
-    temp->data=item;
-    temp->left=temp->right=NULL;
-    return temp;
+    int t = *a;
+    *a = *b;
+    *b = t;
 }
-NODE insert(NODE root,int item)
+
+// Partition function for Quick Sort
+int partition(int arr[], int low, int high)
 {
-    if(root==NULL)
-    return createNode(item);
-    if(item<root->data)
-        root->left=insert(root->left,item);
-    else if(item>root->data)
-        root->right=insert(root->right,item);
-    else
-        printf("Duplicate element is not allowed\n");
-    return root;
-}
-void inorder(NODE root)
-{
-    if(root!=NULL)
+    int pivot = arr[high]; // Pivot element
+    int i = (low - 1); // Index of smaller element
+
+    for (int j = low; j <= high - 1; j++)
     {
-        inorder(root->left);
-        printf(" %d",root->data);
-        inorder(root->right);
-    }
-}
-void preorder(NODE root)
-{
-    if(root!=NULL)
-    {
-        printf(" %d",root->data);
-        preorder(root->left);
-        preorder(root->right);
-    }
-}
-void postorder(NODE root)
-{
-    if(root!=NULL)
-    {
-        postorder(root->left);
-        postorder(root->right);
-        printf(" %d",root->data);
-    }
-}
-void search(NODE root,int key)
-{
-    if(root==NULL)
-    {
-        printf("%d not found\n",key);
-    }
-    if(key<root->data)
-        search(root->left,key);
-    else if(key>root->data)
-        search(root->right,key);
-    else
-        printf("%d found in BST\n",key);
-}
-int main()
-{
-    NODE root=NULL;
-    int n,item,ch;
-    printf("Enter number of elements:");
-    scanf("%d",&n);
-    printf("Enter the %d elements:",n);
-    for(int i=0;i<n;i++)
-    {
-        scanf("%d",&item);
-        root=insert(root,item);
-    }
-    while(1)
-    {
-        printf("\n\n1.Inorder\n2.Postorder\n3.Preorder\n4.Search\n5.Exit");
-        printf("\nEnter your choice:");
-        scanf("%d",&ch);
-        switch(ch)
+        if (arr[j] < pivot)
         {
-            case 1:printf("Inorder:");
-            inorder(root);
-            break;
-            case 2:printf("Postorder:");
-            postorder(root);
-            break;
-            case 3:printf("Preorder:");
-            preorder(root);
-            break;
-            case 4:printf("Enter the element to search:");
-            scanf("%d",&item);
-            search(root,item);
-            break;
-            case 5:exit(0);
-            default:printf("Invalid Choice");
+            i++; // Increment index of smaller element
+            swap(&arr[i], &arr[j]);
         }
     }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+// Quick Sort function
+void quickSort(int arr[], int low, int high)
+{
+    if (low < high)
+    {
+        int pi = partition(arr, low, high);
+
+        // Recursively sort elements before and after partition
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Function to generate random numbers
+void generateRandomNumbers(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        arr[i] = rand() % 100000; // Generate random numbers between 0 and 99999
+    }
+}
+
+int main()
+{
+    int n;
+    printf("Enter number of elements: ");
+    scanf("%d", &n); // Read the number of elements from the user
+
+    if (n <= 5000)
+    {
+        printf("Please enter a value greater than 5000\n");
+        return 1; // Exit if the number of elements is not greater than 5000
+    }
+
+    // Allocate memory for the array
+    int *arr = (int *)malloc(n * sizeof(int));
+    if (arr == NULL)
+    {
+        printf("Memory allocation failed\n");
+        return 1; // Exit if memory allocation fails
+    }
+
+    // Generate random numbers and store them in the array
+    generateRandomNumbers(arr, n);
+
+    // Measure the time taken to sort the array
+    clock_t start = clock();
+    quickSort(arr, 0, n - 1);
+    clock_t end = clock();
+
+    // Calculate and print the time taken to sort the array
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken to sort %d elements: %f seconds\n", n, time_taken);
+
+    // Free the allocated memory
+    free(arr);
     return 0;
 }
